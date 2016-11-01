@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:aop="http://www.springframework.org/schema/aop"
+	   xmlns:tx="http://www.springframework.org/schema/tx"
+	   xsi:schemaLocation="
+		http://www.springframework.org/schema/beans			http://www.springframework.org/schema/beans/spring-beans-3.2.xsd 
+		http://www.springframework.org/schema/context		http://www.springframework.org/schema/context/spring-context-3.2.xsd
+		http://www.springframework.org/schema/aop			http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+		http://www.springframework.org/schema/tx			http://www.springframework.org/schema/tx/spring-tx-3.2.xsd"	
+	   default-lazy-init="false">
+	
+	<bean id="dsProxy" class="com.yogapay.couriertsi.dataSource" />
+	<bean class="com.yogapay.couriertsi.SessionManager" />
+	
+	<context:component-scan base-package="com.yogapay.couriertsi.services">
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+	</context:component-scan>
+	<context:component-scan base-package="com.yogapay.couriertsi.services2"></context:component-scan>
+	
+	<!-- 导入数据库配置 -->
+	<!--<context:property-placeholder location="classpath:config/jdbc.properties" />-->
+	<import resource="classpath:spring/db.xml" />
+	<!--<import resource="classpath:spring-common.xml" />-->
+	<import resource="classpath*:boss/common/spring.xml" />
+	<import resource="classpath*:boss/common/spring_company.xml" />
+	<!-- 导入定时任务 -->
+	<import resource="classpath:spring/quartz.xml" />
+	<!-- 	<bean name="dict" id="dict" class="com.yogapay.boss.utils.tag.Dict"></bean>
+	<bean name="agentUser" id="agentUser" class="com.yogapay.boss.utils.tag.AgentUser"></bean>
+	<bean name="logic" id="logic" class="com.yogapay.boss.utils.tag.Logic"></bean>
+	<bean name="genSyncNo" id="genSyncNo" class="com.yogapay.boss.utils.GenSyncNo"></bean>
+	<bean name="select" id="select" class="com.yogapay.boss.utils.tag.Select"></bean>
+	<bean name="memoryCache" id="memoryCache" class="com.yogapay.boss.utils.MemoryCache"></bean> -->
+	<aop:aspectj-autoproxy proxy-target-class="true"/>
+    
+    
+	<bean id="cacheManager" class="net.sf.ehcache.CacheManager" factory-method="newInstance" destroy-method="shutdown">
+		<constructor-arg type="java.net.URL" value="classpath:ehcache.xml" />
+	</bean>
+	
+	<bean id="sessionCache" factory-bean="cacheManager" factory-method="getCache">
+		<constructor-arg value="session" />
+	</bean>
+	
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="configurationProperties">
+			<props>
+				<prop key="logImpl">LOG4J</prop>
+				<prop key="cacheEnabled">false</prop>
+				<prop key="lazyLoadingEnabled">false</prop>
+				<prop key="useColumnLabel">true</prop>
+				<prop key="mapUnderscoreToCamelCase">true</prop>
+			</props>
+		</property>
+		<property name="dataSource" ref="companyDataSource" />
+		<property name="mapperLocations" value="classpath:mybatis_mapper/*.xml" />
+		<property name="plugins">
+			<list>
+				<bean class="com.yogapay.sql.mybatis.ResultSetMapperInterceptor">
+					<constructor-arg>
+						<bean class="com.yogapay.sql.mapping2.GlobalContext">
+							<property name="defaultEntityPackage" value="com.yogapay.couriertsi.domain" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+	<!-- ================================事务相关控制================================================= -->
+	<bean name="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+
+
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="delete*" propagation="REQUIRED" read-only="false"		   rollback-for="java.lang.Exception" no-rollback-for="java.lang.RuntimeException" />
+			<tx:method name="insert*" propagation="REQUIRED" read-only="false"		   rollback-for="java.lang.Exception" />
+			<tx:method name="update*" propagation="REQUIRED" read-only="false"		   rollback-for="java.lang.Exception" />
+			<tx:method name="save*" propagation="REQUIRED" read-only="false"  rollback-for="java.lang.Exception" />		
+			<tx:method name="take" propagation="REQUIRED" read-only="false"  rollback-for="java.lang.Exception" />
+			<tx:method name="yxtake" propagation="REQUIRED" read-only="false"  rollback-for="java.lang.Exception" />
+			<tx:method name="read*" propagation="REQUIRED" read-only="true" />
+			<tx:method name="find*" propagation="SUPPORTS" />
+			<tx:method name="get*" propagation="SUPPORTS" />
+			<tx:method name="select*" propagation="SUPPORTS" />
+		</tx:attributes>
+	</tx:advice>
+	
+	<bean name="transactionManager2" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="companyDataSource"></property>
+	</bean>
+
+	<tx:advice id="txAdvice2" transaction-manager="transactionManager2">
+		<tx:attributes>
+			<tx:method name="*_tx" propagation="REQUIRED" read-only="false"  rollback-for="java.lang.Throwable" />
+		</tx:attributes>
+	</tx:advice>
+	<!-- 	 把事务控制在Service层 --> 
+	<aop:config>
+		<aop:pointcut id="pc" expression="execution(public * com.yogapay.couriertsi.services.*.*(..))" />
+		<aop:pointcut id="pc2" expression="execution(public * com.yogapay.couriertsi.services2.*.*_tx*(..))" />
+		<aop:advisor pointcut-ref="pc" advice-ref="txAdvice" />
+		<aop:advisor pointcut-ref="pc2" advice-ref="txAdvice2" />
+	</aop:config>
+    
+
+
+	<!--     <tx:advice id="noTxAdvice" transaction-manager="transactionManager">   -->
+	<!--     <tx:attributes>   -->
+	<!--            <tx:method name="*" propagation="NEVER" />   -->
+	<!--     </tx:attributes>   -->
+	<!-- </tx:advice>   -->
+	<!-- <aop:config>   -->
+	<!--        <aop:pointcut id="noTxPointcut"  expression="execution(public * com.yogapay.couriertsi.services.*.*(..))" />   -->
+	<!--        <aop:advisor advice-ref="noTxPointcut" pointcut-ref="noTxAdvice" />   -->
+	<!-- </aop:config>   -->
+    
+    
+
+	<!-- <bean id="orderInfoService" class="com.yogapay.couriertsi.services.OrderInfoService">   -->
+	<!--     <property name="dao" ref="dao"/>   -->
+	<!--     <property name="orderInfoService1" ref="orderInfoService1"/>   -->
+	<!-- </bean>   -->
+	<!-- <bean id="orderInfoService1" class="com.yogapay.couriertsi.services.OrderInfoService">   -->
+	<!--     <property name="dao1" ref="dao"/> -->
+	<!-- </bean>   -->
+   
+
+	<tx:annotation-driven transaction-manager="transactionManager"/>   
+
+	<beans profile="development">
+		<bean id="config" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+			<property name="locations">
+				<array>
+					<value>classpath:config/config.properties</value>
+					<value>classpath:config/config_dev.properties</value>
+				</array>
+			</property>
+		</bean>
+	</beans>
+	<beans profile="default">
+		<bean id="config" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+			<property name="locations">
+				<array>
+					<value>classpath:config/config.properties</value>
+					<value>file:config_pro.properties</value>
+				</array>
+			</property>
+		</bean>
+	</beans>
+    
+   
+</beans>

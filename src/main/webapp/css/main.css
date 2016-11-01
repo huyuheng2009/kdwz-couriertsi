@@ -1,0 +1,40 @@
+.use_list{}
+.use_li{}
+.use_li_tit{ background:#fff; overflow:auto; zoom:1; height:50px; border-bottom:1px solid #e1e1e1; display:block; position: relative;}
+.use_li_tit img{ float:left; display:block; width:30px; height:auto; margin:10px 10px 0 4%;}
+.use_li_tit strong{ float:left; display:block; font-weight:normal; width:calc(100% - 8% - 60px); height:50px; line-height:50px; color:#0c5fbf;white-space:nowrap;  overflow:hidden;text-overflow: ellipsis;  -o-text-overflow:ellipsis; margin-left:4%;}
+.use_li_tit span{ position:absolute; right:0; top:0; display:block; width:20px; height:50px; background: url(../images/arr01.png) no-repeat right; background-size:10px 16px; margin-right:4%;}
+.use_li_tit02{}
+.use_li_tit02 span{ background: url(../images/arr02.png) no-repeat right; background-size:16px 10px;}
+.use_li_cont{ padding:10px 4%; display:none;}
+.use_li_p{ text-align:center;}
+.use_li_p p{ text-align:left; line-height:24px; color:#333;}
+.use_li_p img{ width:70%; height:auto; margin:10px 0; display:inline-block; border:1px solid #e1e1e1; vertical-align:middle; line-height:0; background:#f8f8f8;}
+
+@media screen and (min-width: 370px) { 
+body{ font-size:14px;}
+} 
+/* iphone6+的适配 */ 
+
+.edit_code_cont{ background:#fff; margin-top:10px;}
+.edit_code_cont ul{ border-top:1px solid #cacaca;}
+.edit_code_cont ul li{ overflow:auto; zoom:1; border-bottom:1px solid #cacaca; position:relative;  padding:0 4%;}
+.edit_code_li input{ float:left; border:0; outline:0; height:20px; width:100%; color:#666; padding:10px 0;}
+
+.save .save_butt{ width:100%; height:40px; background:#ff7200; background:none; border-left:1px solid #cacaca; cursor:pointer; border:0; color:#fff;background: -moz-linear-gradient(#ff7200, #ff7200); /* Firefox */
+background:-webkit-gradient(linear,from(#ff7200),to(#ff7200));}
+
+.pun_ta{ border-collapse:collapse; border-right:1px solid #cdcdcd; border-top:1px solid #cdcdcd; width:96%; margin:10px auto;}
+.pun_ta tr th , .pun_ta tr td{ border-left:1px solid #cdcdcd; border-bottom:1px solid #cdcdcd; height:28px;}
+.pun_ta tr th{ font-size:14px; min-width:80px;}
+.pun_ta tr td{ text-align:left; padding:4px 6px 4px 10px; font-size:12px;}
+
+
+
+
+
+
+
+
+
+

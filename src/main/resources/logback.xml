@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<property name="LOG_HOME" value="/home/deploy/couriertsi/logs/couriertsi" />
+	<property name="smtpHost" value="smtp.exmail.qq.com" />
+	<property name="username" value="zentaopms@yogapay.com" />
+	<property name="password" value="zentao0732" />
+	<property name="email_to" value="609708791@qq.com" />
+	<property name="email_from" value="zentaopms@yogapay.com" />
+	<property name="email_subject" value="【Error】: %logger" />
+
+	<!-- 控制台输出 -->
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm} [%thread] %-5level %logger{80} -[%method,%line] - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="FILE"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<!--<file>${LOG_HOME}/boss.log</file> -->
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- daily rollover -->
+			<fileNamePattern>${LOG_HOME}/couriertsi.%d{yyyy-MM-dd}.log
+			</fileNamePattern>
+			<!-- keep 30 days worth of history -->
+			<maxHistory>30</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm} [%thread] %-5level %logger{80} -%msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<logger name="jdbc.sqltiming" level="error" />
+	<logger name="jdbc.audit" level="error" />
+	<logger name="jdbc.connection" level="error" />
+	<logger name="jdbc.resultset" level="error" />
+	<appender name="EMAIL" class="ch.qos.logback.classic.net.SMTPAppender">
+		<smtpHost>${smtpHost}</smtpHost>
+		<smtpPort>25</smtpPort>
+		<username>${username}</username>
+		<password>${password}</password>
+		<SSL>false</SSL>
+		<asynchronousSending>false</asynchronousSending>
+		<to>${email_to}</to>
+		<from>${email_from}</from>
+		<subject>${email_subject}</subject>
+		<layout class="ch.qos.logback.classic.html.HTMLLayout">
+			<pattern>%date%level%thread%logger{0}%line%message</pattern>
+		</layout>
+		<filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+			<evaluator class="ch.qos.logback.classic.boolex.JaninoEventEvaluator">
+				<expression>
+					<!-- & encoded as &amp; -->
+					if(level > WARN &amp;&amp; null != throwable) {
+					return true;
+					}
+					return
+					false;
+				</expression>
+			</evaluator>
+			<onMatch>ACCEPT</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
+	</appender>
+	<root level="info">
+<!-- 		<appender-ref ref="EMAIL" /> -->
+		<appender-ref ref="STDOUT" />
+		<appender-ref ref="FILE" />
+	</root>
+</configuration> 

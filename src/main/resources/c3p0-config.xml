@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<c3p0-config>
+	<default-config>
+		<!-- 连接池中保留的最小连接数。 -->
+		<property name="minPoolSize">0</property>
+		<!-- 连接池中保留的最大连接数，默认值为15。 -->
+		<property name="maxPoolSize">15</property>
+		<!-- 初始化时获得的连接数，介于minPoolSize和maxPoolSize之间，默认为3。 -->
+		<property name="initialPoolSize">0</property>
+		<!-- 最大空闲时间，${指定秒数}秒内未使用则连接被丢弃。若为0则永不丢弃。默认为0。 -->
+		<property name="maxIdleTime">1800</property>
+		<!-- 当连接池中的连接耗尽时，c3p0一次同时获取的连接数。默认为3。 -->
+		<property name="acquireIncrement">1</property>
+		<!--
+				JDBC的标准参数，用以控制数据源内加载的PreparedStatements数量。但由于预缓存的statements
+				属于单个connection而不是整个连接池。所以设置这个参数需要考虑到多方面的因素。
+				如果maxStatements与maxStatementsPerConnection均为0，则缓存被关闭。默认为0。
+		-->
+		<property name="maxStatements">0</property>
+		<!--每${指定秒数}秒检查所有连接池中的空闲连接。默认为0。 -->
+		<property name="idleConnectionTestPeriod">60</property>
+		<!--定义在从数据库获取新连接失败后重复尝试的次数。默认为30。 -->
+		<property name="acquireRetryAttempts">3</property>
+		<!--
+				获取连接失败将会引起所有等待连接池来获取连接的线程抛出异常。但是数据源仍有效
+				保留，并在下次调用getConnection()的时候继续尝试获取连接。如果设为true，那么在尝试
+				获取连接失败后该数据源将声明已断开并永久关闭。默认为false。
+		-->
+		<property name="breakAfterAcquireFailure">false</property>
+		<!--
+				因性能消耗大请只在需要的时候使用它。如果设为true那么在每个connection提交的
+				时候都将校验其有效性。建议使用idleConnectionTestPeriod或automaticTestTable
+				等方法来提升连接测试的性能。默认为false。
+		-->
+		<property name="testConnectionOnCheckout">false</property>
+	</default-config>
+	<!-- 正式环境-->
+	<named-config name="pro">
+		<property name="acquireIncrement">3</property>
+		<property name="initialPoolSize">3</property>
+		<property name="minPoolSize">0</property>
+		<property name="maxPoolSize">15</property>
+	</named-config>
+	<named-config name="project">
+		<property name="driverClass">com.mysql.jdbc.Driver</property>
+		<property name="acquireIncrement">3</property>
+		<property name="initialPoolSize">0</property>
+		<property name="minPoolSize">3</property>
+		<property name="maxPoolSize">15</property>
+	</named-config>
+	<!--开发环境 -->
+	<named-config name="dev">
+		<property name="acquireIncrement">1</property>
+		<property name="initialPoolSize">0</property>
+		<property name="minPoolSize">0</property>
+		<property name="maxPoolSize">3</property>
+	</named-config>
+</c3p0-config>

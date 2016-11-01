@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yogapay.couriertsi.services2.OrderInfoService2">
+
+	<select id="queryByOrderNo" parameterType="string">
+		SELECT NULL AS ':ENTITY(OrderInfo)', s1.* FROM order_info s1 WHERE s1.order_no=#{value}
+	</select>
+	
+	<select id="transfer_order_checkExists" parameterType="string" resultType="map">
+		SELECT COUNT(0) num,s1.for_no,s2.order_no
+		FROM order_info s1
+		LEFT JOIN forward_order s2 ON s2.order_no=s1.order_no
+		WHERE s1.lgc_order_no=#{valule}
+	</select>
+	
+	<update id="transfer_order_for_no">
+		UPDATE order_info SET for_no=#{cpn_order_no} WHERE lgc_order_no=#{c_order_no}
+	</update>
+	
+	<insert id="transfer_order_insert">
+		INSERT INTO forward_order
+		(`order_no`,`forward_type`,`cur_no`,`cur_lgc_order_no`,`forward_time`,`scan_no`,`scan_name`,`io_lgc_order_no`,`io_name`)
+		SELECT s1.order_no,'OUT',s3.substation_no,s1.lgc_order_no, NOW(),s2.courier_no,s2.real_name,#{cpn_order_no},s4.cpn_name
+		FROM order_info s1, courier s2
+		JOIN substation s3 ON s3.substation_no=s2.substation_no
+		,for_cpn s4
+		WHERE s1.lgc_order_no=#{c_order_no} AND s2.courier_no=#{courier_no} AND s4.id=#{cpn_id}
+	</insert>
+</mapper>

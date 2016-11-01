@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yogapay.couriertsi.services2.OthersService">
+
+	<select id="get_cpn" resultType="map">
+		SELECT id,cpn_name FROM for_cpn
+		WHERE 1
+		<if test="id != null">AND id=#{id}</if>
+	</select>
+</mapper>

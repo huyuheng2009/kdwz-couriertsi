@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yogapay.couriertsi.services2.JoinService">
+
+	<select id="queryByUser">
+		SELECT NULL AS ':ENTITY(JoinSubstationAcount)', s2.*
+		FROM courier s1
+		JOIN join_substation_acount s2 ON s2.substation_no=s1.substation_no
+		WHERE s1.id=#{id}
+	</select>
+	
+</mapper>
